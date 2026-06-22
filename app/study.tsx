@@ -9,11 +9,12 @@ import { getTodayStudyQueue, processRating, recordStudy } from '../src/services/
 import { getButtonPreviews } from '../src/services/fsrsService';
 import { Rating, ButtonPreview } from '../src/types';
 import * as Haptics from 'expo-haptics';
+import * as Speech from 'expo-speech';
 
 function formatInterval(days: number): string {
   if (days < 1) return '< 1天';
   if (days === 1) return '1天';
-  if (days < 30) return `${days}天`;
+  if (days < 30) return `${Math.round(days)}天`;
   if (days < 365) return `${Math.round(days / 30)}个月`;
   return `${(days / 365).toFixed(1)}年`;
 }
@@ -21,7 +22,7 @@ function formatInterval(days: number): string {
 export default function StudyPage() {
   const router = useRouter();
   const db = useSQLiteContext();
-  const { selectedBookId, newWordsPerDay, reviewLimitPerDay } = useSettingsStore();
+  const { selectedBookId, newWordsPerDay } = useSettingsStore();
   const {
     queue, currentIndex, setQueue, moveToNext, getCurrentWord,
     incrementNewCount, incrementReviewCount, getProgress, sessionStartTime,
@@ -33,14 +34,13 @@ export default function StudyPage() {
   const [ratingDisabled, setRatingDisabled] = useState(false);
   const [previews, setPreviews] = useState<ButtonPreview[]>([]);
 
-  const flipAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => { loadQueue(); }, []);
 
   useEffect(() => {
     setShowMeaning(false);
-    flipAnim.setValue(0);
-    // Pre-compute previews for current word
+    fadeAnim.setValue(1);
     if (queue[currentIndex]) {
       setPreviews(getButtonPreviews(queue[currentIndex].card));
     }
@@ -48,7 +48,7 @@ export default function StudyPage() {
 
   const loadQueue = async () => {
     try {
-      const session = await getTodayStudyQueue(db, selectedBookId, newWordsPerDay, reviewLimitPerDay);
+      const session = await getTodayStudyQueue(db, selectedBookId, newWordsPerDay);
       const allWords = [
         ...session.newWords.map((w) => ({ ...w, isNew: true })),
         ...session.reviewWords.map((w) => ({ ...w, isNew: false })),
@@ -67,13 +67,18 @@ export default function StudyPage() {
     }
   };
 
-  const handleFlip = () => {
+  const handleShowMeaning = () => {
     if (showMeaning) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowMeaning(true);
-    Animated.spring(flipAnim, {
-      toValue: 1, friction: 8, tension: 10, useNativeDriver: true,
-    }).start();
+  };
+
+  const handleSpeak = (text: string) => {
+    Speech.speak(text, {
+      language: 'en-US',
+      rate: 0.8,
+      pitch: 1.0,
+    });
   };
 
   const handleRate = useCallback(async (rating: Rating) => {
@@ -122,13 +127,6 @@ export default function StudyPage() {
   const progress = getProgress();
   const word = currentWord.word;
 
-  const frontOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.5, 1], outputRange: [1, 0, 0],
-  });
-  const backOpacity = flipAnim.interpolate({
-    inputRange: [0, 0.5, 1], outputRange: [0, 0, 1],
-  });
-
   return (
     <View style={styles.container}>
       {/* Top Bar */}
@@ -147,42 +145,52 @@ export default function StudyPage() {
         <View style={[styles.progressBarFill, { width: `${(progress.current / progress.total) * 100}%` }]} />
       </View>
 
-      {/* Card */}
-      <View style={styles.cardArea}>
-        <TouchableOpacity activeOpacity={0.9} onPress={handleFlip} style={styles.cardContainer}>
-          {/* Front */}
-          <Animated.View style={[styles.card, { opacity: frontOpacity }]}>
-            <Text style={styles.wordText} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6}>
-              {word.word}
-            </Text>
+      {/* Word Display Area */}
+      <View style={styles.wordArea}>
+        {/* Word Section */}
+        <View style={styles.wordSection}>
+          <Text style={styles.wordText} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6}>
+            {word.word}
+          </Text>
+          <View style={styles.phoneticRow}>
             <Text style={styles.phoneticText}>{word.phonetic}</Text>
-            <View style={styles.speakerBtn}>
-              <MaterialIcons name="volume-up" size={22} color="#005ea1" />
-            </View>
-            <Text style={styles.hintText}>点击查看释义</Text>
-          </Animated.View>
+            <TouchableOpacity
+              style={styles.speakerBtn}
+              onPress={() => handleSpeak(word.word)}
+            >
+              <MaterialIcons name="volume-up" size={20} color="#005ea1" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-          {/* Back */}
-          <Animated.View style={[styles.card, styles.cardBack, { opacity: backOpacity }]}>
-            <Text style={styles.wordTextBack} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-              {word.word}
-            </Text>
-            <View style={styles.backPhoneticRow}>
-              <Text style={styles.phoneticTextBack}>{word.phonetic}</Text>
-              <MaterialIcons name="volume-up" size={16} color="#005ea1" />
+        {/* Meaning Cover / Display */}
+        {!showMeaning ? (
+          <TouchableOpacity
+            style={styles.coverArea}
+            onPress={handleShowMeaning}
+            activeOpacity={0.8}
+          >
+            <View style={styles.coverContent}>
+              <MaterialIcons name="visibility-off" size={32} color="#c1c7d2" />
+              <Text style={styles.coverHint}>请回忆单词发音和释义</Text>
+              <Text style={styles.coverSubHint}>点击屏幕查看释义</Text>
             </View>
-            <View style={styles.cardDivider} />
+          </TouchableOpacity>
+        ) : (
+          <Animated.View style={[styles.meaningArea, { opacity: fadeAnim }]}>
+            <View style={styles.meaningDivider} />
             <Text style={styles.meaningText}>{word.meaning}</Text>
             {word.example ? (
               <View style={styles.exampleBox}>
+                <Text style={styles.exampleLabel}>例句</Text>
                 <Text style={styles.exampleText}>{word.example}</Text>
               </View>
             ) : null}
           </Animated.View>
-        </TouchableOpacity>
+        )}
       </View>
 
-      {/* 3 Rating Buttons with interval */}
+      {/* Rating Buttons */}
       {showMeaning && (
         <View style={styles.bottomBar}>
           {previews.map((btn) => (
@@ -219,37 +227,59 @@ const styles = StyleSheet.create({
   progressBarTrack: { height: 4, backgroundColor: '#e6e8eb' },
   progressBarFill: { height: '100%', backgroundColor: '#005ea1', borderRadius: 2 },
 
-  // Card
-  cardArea: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
-  cardContainer: { width: '100%', height: 420 },
-  card: {
-    position: 'absolute', width: '100%', height: '100%',
-    backgroundColor: '#ffffff', borderRadius: 16,
-    borderWidth: 1, borderColor: 'rgba(193,199,210,0.2)',
-    shadowColor: '#005ea1', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 20,
-    elevation: 3,
-    justifyContent: 'center', alignItems: 'center', padding: 32,
+  // Word Area
+  wordArea: {
+    flex: 1, paddingHorizontal: 32, paddingTop: 40,
   },
-  cardBack: { justifyContent: 'flex-start', paddingTop: 28 },
-  wordText: { fontSize: 36, fontWeight: '700', color: '#191c1e', letterSpacing: -0.02, textAlign: 'center' },
-  phoneticText: { fontSize: 16, color: '#717782', marginTop: 8 },
+  wordSection: {
+    alignItems: 'center', marginBottom: 32,
+  },
+  wordText: {
+    fontSize: 40, fontWeight: '700', color: '#191c1e', letterSpacing: -0.02, textAlign: 'center',
+  },
+  phoneticRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12,
+  },
+  phoneticText: { fontSize: 16, color: '#717782' },
   speakerBtn: {
-    width: 44, height: 44, borderRadius: 999,
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: '#f2f4f7', justifyContent: 'center', alignItems: 'center',
-    marginTop: 24,
   },
-  hintText: { fontSize: 13, fontWeight: '500', color: '#c1c7d2', marginTop: 20 },
 
-  // Back
-  wordTextBack: { fontSize: 24, fontWeight: '700', color: '#191c1e', textAlign: 'center' },
-  backPhoneticRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  phoneticTextBack: { fontSize: 14, color: '#717782' },
-  cardDivider: { width: '50%', height: 1, backgroundColor: '#e0e3e6', marginVertical: 20 },
-  meaningText: { fontSize: 18, fontWeight: '500', color: '#191c1e', textAlign: 'center', lineHeight: 28 },
-  exampleBox: {
-    marginTop: 16, backgroundColor: '#f2f4f7', borderRadius: 12, padding: 16, width: '100%',
+  // Cover Area
+  coverArea: {
+    flex: 1, justifyContent: 'center', alignItems: 'center',
   },
-  exampleText: { fontSize: 14, color: '#414751', lineHeight: 22 },
+  coverContent: {
+    alignItems: 'center',
+  },
+  coverHint: {
+    fontSize: 16, fontWeight: '500', color: '#717782', marginTop: 16,
+  },
+  coverSubHint: {
+    fontSize: 13, fontWeight: '400', color: '#c1c7d2', marginTop: 8,
+  },
+
+  // Meaning Area
+  meaningArea: {
+    paddingVertical: 24,
+  },
+  meaningDivider: {
+    width: 40, height: 3, backgroundColor: '#005ea1', borderRadius: 2,
+    alignSelf: 'center', marginBottom: 20,
+  },
+  meaningText: {
+    fontSize: 18, fontWeight: '500', color: '#191c1e', textAlign: 'center', lineHeight: 28,
+  },
+  exampleBox: {
+    marginTop: 20, backgroundColor: '#f2f4f7', borderRadius: 12, padding: 16,
+  },
+  exampleLabel: {
+    fontSize: 12, fontWeight: '600', color: '#005ea1', marginBottom: 8,
+  },
+  exampleText: {
+    fontSize: 14, color: '#414751', lineHeight: 22,
+  },
 
   // Bottom Buttons
   bottomBar: {

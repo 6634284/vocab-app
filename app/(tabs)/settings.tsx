@@ -118,15 +118,12 @@ export default function SettingsPage() {
   const {
     selectedBookId,
     newWordsPerDay,
-    reviewLimitPerDay,
     darkMode,
     setNewWordsPerDay,
-    setReviewLimitPerDay,
     toggleDarkMode,
   } = useSettingsStore();
 
   const [showNewWordsPicker, setShowNewWordsPicker] = useState(false);
-  const [showReviewPicker, setShowReviewPicker] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -153,14 +150,6 @@ export default function SettingsPage() {
               <View style={styles.valueBadge}>
                 <Text style={styles.valueBadgeText}>{newWordsPerDay}个</Text>
               </View>
-              <MaterialIcons name="chevron-right" size={20} color="#c1c7d2" />
-            </View>
-          </TouchableOpacity>
-          <View style={styles.rowDivider} />
-          <TouchableOpacity style={styles.row} onPress={() => setShowReviewPicker(true)}>
-            <Text style={styles.rowLabel}>每日复习上限</Text>
-            <View style={styles.rowRight}>
-              <Text style={styles.rowValue}>{reviewLimitPerDay}个</Text>
               <MaterialIcons name="chevron-right" size={20} color="#c1c7d2" />
             </View>
           </TouchableOpacity>
@@ -204,15 +193,6 @@ export default function SettingsPage() {
         currentValue={newWordsPerDay}
         onSelect={setNewWordsPerDay}
         onClose={() => setShowNewWordsPicker(false)}
-      />
-      <NumberPicker
-        visible={showReviewPicker}
-        title="设置每日复习上限"
-        subtitle="合理规划复习量，巩固记忆"
-        options={reviewLimitOptions}
-        currentValue={reviewLimitPerDay}
-        onSelect={setReviewLimitPerDay}
-        onClose={() => setShowReviewPicker(false)}
       />
     </View>
   );

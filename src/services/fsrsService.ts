@@ -71,8 +71,11 @@ export function getButtonPreviews(card: Card): ButtonPreview[] {
 
   return ratings.map(({ rating, fsrs, label, color, bgColor }) => {
     const result = scheduler.next(fsrsCard, now, fsrs);
-    const scheduledDays = result.card.scheduled_days;
-    const interval = Math.max(0, Math.ceil(scheduledDays));
-    return { rating, label, color, bgColor, interval };
+    // Calculate actual interval in days
+    const dueTime = result.card.due.getTime();
+    const nowTime = now.getTime();
+    const intervalMs = dueTime - nowTime;
+    const intervalDays = Math.max(1, Math.ceil(intervalMs / (1000 * 60 * 60 * 24)));
+    return { rating, label, color, bgColor, interval: intervalDays };
   });
 }

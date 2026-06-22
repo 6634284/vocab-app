@@ -11,7 +11,7 @@ import { initCardsForBook, getTodayStudyLog } from '../../src/db/queries';
 export default function HomePage() {
   const router = useRouter();
   const db = useSQLiteContext();
-  const { selectedBookId, newWordsPerDay, reviewLimitPerDay } = useSettingsStore();
+  const { selectedBookId, newWordsPerDay } = useSettingsStore();
 
   const [newCount, setNewCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
@@ -23,7 +23,7 @@ export default function HomePage() {
   const loadData = useCallback(async () => {
     try {
       await initCardsForBook(db, selectedBookId);
-      const queue = await getTodayStudyQueue(db, selectedBookId, newWordsPerDay, reviewLimitPerDay);
+      const queue = await getTodayStudyQueue(db, selectedBookId, newWordsPerDay);
       setNewCount(queue.newWords.length);
       setReviewCount(queue.reviewWords.length);
       const currentStreak = await checkIn(db);
@@ -39,7 +39,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-  }, [db, selectedBookId, newWordsPerDay, reviewLimitPerDay]);
+  }, [db, selectedBookId, newWordsPerDay]);
 
   useEffect(() => { loadData(); }, [loadData]);
 

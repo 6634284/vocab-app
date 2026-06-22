@@ -11,13 +11,12 @@ export interface StudySession {
 export async function getTodayStudyQueue(
   db: SQLite.SQLiteDatabase,
   bookId: string,
-  newWordsPerDay: number,
-  reviewLimit: number
+  newWordsPerDay: number
 ): Promise<StudySession> {
   const now = Date.now();
 
-  // Get due review cards
-  const dueCards = await queries.getDueCards(db, now, reviewLimit);
+  // Get due review cards (no limit, get all due)
+  const dueCards = await queries.getDueCards(db, now, 10000);
 
   // Get new cards
   const newCards = await queries.getNewCards(db, bookId, newWordsPerDay);

@@ -114,7 +114,10 @@ export default function BookListPage() {
             </View>
           ))}
           {words.length > 0 && (
-            <TouchableOpacity style={styles.viewAllBtn}>
+            <TouchableOpacity
+              style={styles.viewAllBtn}
+              onPress={() => router.push(`/book/${selectedBookId}`)}
+            >
               <Text style={styles.viewAllText}>查看全部任务词汇</Text>
             </TouchableOpacity>
           )}
