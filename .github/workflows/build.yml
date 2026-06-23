@@ -23,10 +23,12 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Setup EAS CLI
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+        run: npm install -g eas-cli
+
+      - name: Login to EAS
+        run: eas login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build Android APK
         id: build-android
@@ -80,10 +82,12 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Setup EAS CLI
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+        run: npm install -g eas-cli
+
+      - name: Login to EAS
+        run: eas login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build iOS IPA
         id: build-ios
