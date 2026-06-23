@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     runs-on: ubuntu-latest
@@ -42,7 +45,7 @@ jobs:
           ls -la app.apk
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: app.apk
           generate_release_notes: true
@@ -84,7 +87,7 @@ jobs:
           ls -la app.ipa
 
       - name: Update Release with IPA
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: app.ipa
         env:
