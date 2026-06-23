@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90D9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#005ea1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 背景圆角矩形 -->
+  <rect x="0" y="0" width="512" height="512" rx="100" fill="url(#bgGrad)"/>
+
+  <!-- 书本图形 -->
+  <g transform="translate(256, 230)">
+    <!-- 左页 -->
+    <path d="M-80,-60 L-80,80 Q-80,90 -70,90 L0,90 L0,-60 Z"
+          fill="#ffffff" opacity="0.95"/>
+    <!-- 右页 -->
+    <path d="M0,-60 L0,90 L70,90 Q80,90 80,80 L80,-60 Z"
+          fill="#ffffff" opacity="0.85"/>
+    <!-- 书脊 -->
+    <rect x="-5" y="-60" width="10" height="150" fill="#ffffff" opacity="0.7"/>
+
+    <!-- 单词 A -->
+    <text x="-45" y="-10" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#005ea1">A</text>
+    <!-- 单词 B -->
+    <text x="15" y="-10" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#005ea1">B</text>
+
+    <!-- 装饰线 -->
+    <line x1="-55" y1="20" x2="-20" y2="20" stroke="#4A90D9" stroke-width="4" stroke-linecap="round"/>
+    <line x1="25" y1="20" x2="60" y2="20" stroke="#4A90D9" stroke-width="4" stroke-linecap="round"/>
+
+    <line x1="-55" y1="40" x2="-30" y2="40" stroke="#4A90D9" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+    <line x1="25" y1="40" x2="50" y2="40" stroke="#4A90D9" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+    <line x1="-55" y1="60" x2="-35" y2="60" stroke="#4A90D9" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+    <line x1="25" y1="60" x2="45" y2="60" stroke="#4A90D9" stroke-width="4" stroke-linecap="round" opacity="0.3"/>
+  </g>
+
+  <!-- 星星装饰 -->
+  <circle cx="100" cy="120" r="8" fill="#FFD700" opacity="0.8"/>
+  <circle cx="412" cy="120" r="6" fill="#FFD700" opacity="0.6"/>
+  <circle cx="420" cy="380" r="5" fill="#FFD700" opacity="0.5"/>
+  <circle cx="92" cy="380" r="7" fill="#FFD700" opacity="0.7"/>
+
+  <!-- 文字 -->
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="56" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="8">词达人</text>
+</svg>

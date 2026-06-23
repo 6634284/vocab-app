@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- 书本图形 -->
+  <g transform="translate(512, 512)">
+    <!-- 左页 -->
+    <path d="M-160,-120 L-160,160 Q-160,180 -140,180 L0,180 L0,-120 Z"
+          fill="#ffffff" opacity="0.95"/>
+    <!-- 右页 -->
+    <path d="M0,-120 L0,180 L140,180 Q160,180 160,160 L160,-120 Z"
+          fill="#ffffff" opacity="0.85"/>
+    <!-- 书脊 -->
+    <rect x="-10" y="-120" width="20" height="300" fill="#ffffff" opacity="0.7"/>
+
+    <!-- 单词 A -->
+    <text x="-90" y="-20" font-family="Arial, sans-serif" font-size="96" font-weight="bold" fill="#005ea1">A</text>
+    <!-- 单词 B -->
+    <text x="30" y="-20" font-family="Arial, sans-serif" font-size="96" font-weight="bold" fill="#005ea1">B</text>
+
+    <!-- 装饰线 -->
+    <line x1="-110" y1="40" x2="-40" y2="40" stroke="#4A90D9" stroke-width="8" stroke-linecap="round"/>
+    <line x1="50" y1="40" x2="120" y2="40" stroke="#4A90D9" stroke-width="8" stroke-linecap="round"/>
+
+    <line x1="-110" y1="80" x2="-60" y2="80" stroke="#4A90D9" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+    <line x1="50" y1="80" x2="100" y2="80" stroke="#4A90D9" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+
+    <line x1="-110" y1="120" x2="-70" y2="120" stroke="#4A90D9" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+    <line x1="50" y1="120" x2="90" y2="120" stroke="#4A90D9" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+  </g>
+
+  <!-- 星星装饰 -->
+  <circle cx="200" cy="240" r="16" fill="#FFD700" opacity="0.8"/>
+  <circle cx="824" cy="240" r="12" fill="#FFD700" opacity="0.6"/>
+  <circle cx="840" cy="760" r="10" fill="#FFD700" opacity="0.5"/>
+  <circle cx="184" cy="760" r="14" fill="#FFD700" opacity="0.7"/>
+</svg>
