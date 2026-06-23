@@ -28,32 +28,20 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Build Android APK
-        id: build-android
-        run: |
-          BUILD_URL=$(eas build --platform android --profile preview --non-interactive --json)
-          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
+        run: eas build --platform android --profile preview --non-interactive
 
-      - name: Wait for build to complete
+      - name: Get latest build info
+        id: build-info
         run: |
-          BUILD_ID=$(echo '${{ steps.build-android.outputs.build_url }}' | jq -r '.[0].id')
-          while true; do
-            STATUS=$(eas build:list --json | jq -r '.[0].status')
-            if [ "$STATUS" = "finished" ]; then
-              break
-            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
-              echo "Build failed with status: $STATUS"
-              exit 1
-            fi
-            echo "Build status: $STATUS, waiting..."
-            sleep 60
-          done
+          BUILD_INFO=$(eas build:list --limit 1 --json)
+          BUILD_ID=$(echo "$BUILD_INFO" | jq -r '.[0].id')
+          BUILD_URL=$(echo "$BUILD_INFO" | jq -r '.[0].artifacts.buildUrl')
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
 
       - name: Download APK
         run: |
-          BUILD_ID=$(echo '${{ steps.build-android.outputs.build_url }}' | jq -r '.[0].id')
-          eas build:list --json | jq -r '.[0].artifacts.buildUrl' > apk_url.txt
-          APK_URL=$(cat apk_url.txt)
-          curl -L -o app.apk "$APK_URL"
+          curl -L -o app.apk "${{ steps.build-info.outputs.build_url }}"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -84,32 +72,20 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Build iOS IPA
-        id: build-ios
-        run: |
-          BUILD_URL=$(eas build --platform ios --profile preview --non-interactive --json)
-          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
+        run: eas build --platform ios --profile preview --non-interactive
 
-      - name: Wait for build to complete
+      - name: Get latest build info
+        id: build-info
         run: |
-          BUILD_ID=$(echo '${{ steps.build-ios.outputs.build_url }}' | jq -r '.[0].id')
-          while true; do
-            STATUS=$(eas build:list --json | jq -r '.[0].status')
-            if [ "$STATUS" = "finished" ]; then
-              break
-            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
-              echo "Build failed with status: $STATUS"
-              exit 1
-            fi
-            echo "Build status: $STATUS, waiting..."
-            sleep 60
-          done
+          BUILD_INFO=$(eas build:list --limit 1 --json)
+          BUILD_ID=$(echo "$BUILD_INFO" | jq -r '.[0].id')
+          BUILD_URL=$(echo "$BUILD_INFO" | jq -r '.[0].artifacts.buildUrl')
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
 
       - name: Download IPA
         run: |
-          BUILD_ID=$(echo '${{ steps.build-ios.outputs.build_url }}' | jq -r '.[0].id')
-          eas build:list --json | jq -r '.[0].artifacts.buildUrl' > ipa_url.txt
-          IPA_URL=$(cat ipa_url.txt)
-          curl -L -o app.ipa "$IPA_URL"
+          curl -L -o app.ipa "${{ steps.build-info.outputs.build_url }}"
 
       - name: Update Release with IPA
         uses: softprops/action-gh-release@v1
