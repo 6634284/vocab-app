@@ -3,6 +3,9 @@
     "name": "vocab-app",
     "slug": "vocab-app",
     "version": "1.0.0",
+    "cli": {
+      "appVersionSource": "local"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -11,6 +14,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.litiancheng.vocabapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
