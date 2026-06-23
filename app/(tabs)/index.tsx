@@ -61,7 +61,7 @@ export default function HomePage() {
 
   return (
     <View style={styles.container}>
-      <Header title="考研词达人" />
+      <Header title="词达人" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Streak Card */}
         <View style={styles.streakCard}>
