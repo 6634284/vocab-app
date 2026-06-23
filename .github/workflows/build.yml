@@ -24,24 +24,22 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Setup EAS CLI
-        run: npm install -g eas-cli
+      - name: Install EAS CLI
+        run: npm install -g eas-cli@latest
 
       - name: Build Android APK
         run: eas build --platform android --profile preview --non-interactive
 
-      - name: Get latest build info
-        id: build-info
+      - name: Wait for build to be available
+        run: sleep 30
+
+      - name: Get build info and download APK
         run: |
           BUILD_INFO=$(eas build:list --limit 1 --json)
-          BUILD_ID=$(echo "$BUILD_INFO" | jq -r '.[0].id')
           BUILD_URL=$(echo "$BUILD_INFO" | jq -r '.[0].artifacts.buildUrl')
-          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
-          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
-
-      - name: Download APK
-        run: |
-          curl -L -o app.apk "${{ steps.build-info.outputs.build_url }}"
+          echo "Downloading APK from: $BUILD_URL"
+          curl -L -o app.apk "$BUILD_URL"
+          ls -la app.apk
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -68,24 +66,22 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Setup EAS CLI
-        run: npm install -g eas-cli
+      - name: Install EAS CLI
+        run: npm install -g eas-cli@latest
 
       - name: Build iOS IPA
         run: eas build --platform ios --profile preview --non-interactive
 
-      - name: Get latest build info
-        id: build-info
+      - name: Wait for build to be available
+        run: sleep 30
+
+      - name: Get build info and download IPA
         run: |
           BUILD_INFO=$(eas build:list --limit 1 --json)
-          BUILD_ID=$(echo "$BUILD_INFO" | jq -r '.[0].id')
           BUILD_URL=$(echo "$BUILD_INFO" | jq -r '.[0].artifacts.buildUrl')
-          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
-          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
-
-      - name: Download IPA
-        run: |
-          curl -L -o app.ipa "${{ steps.build-info.outputs.build_url }}"
+          echo "Downloading IPA from: $BUILD_URL"
+          curl -L -o app.ipa "$BUILD_URL"
+          ls -la app.ipa
 
       - name: Update Release with IPA
         uses: softprops/action-gh-release@v1
