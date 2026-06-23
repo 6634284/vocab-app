@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build Android APK
 
 on:
   push:
@@ -49,46 +49,5 @@ jobs:
         with:
           files: app.apk
           generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  build-ios:
-    runs-on: macos-latest
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Install EAS CLI
-        run: npm install -g eas-cli@latest
-
-      - name: Build iOS IPA
-        run: eas build --platform ios --profile preview --non-interactive
-
-      - name: Wait for build to be available
-        run: sleep 30
-
-      - name: Get build info and download IPA
-        run: |
-          BUILD_INFO=$(eas build:list --limit 1 --json)
-          BUILD_URL=$(echo "$BUILD_INFO" | jq -r '.[0].artifacts.buildUrl')
-          echo "Downloading IPA from: $BUILD_URL"
-          curl -L -o app.ipa "$BUILD_URL"
-          ls -la app.ipa
-
-      - name: Update Release with IPA
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app.ipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
